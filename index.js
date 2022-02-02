@@ -8,9 +8,20 @@ const port = 3000
 const source_url = 'http://localhost:8081/webcam.ogg'
 const drain_respect = false
 const source_sleep_ms = 3000
+const initial_chunk_memory_count = 10
 
 // Source stream listener callbacks
+const initial_chunks = []
 const source_listeners = {}
+
+// Registration of source listeners
+function register_source_listener(id, forwarder) {
+  console.log(`Listener ${id} attached as webcam stream listener`)
+  source_listeners[id] = forwarder
+  for (i = 0; i < initial_chunks.length; i++) {
+    forwarder(false, initial_chunks[i])
+  }
+}
 
 // Stream sourcing & internal broadcasting
 setTimeout(function () {
@@ -18,6 +29,9 @@ setTimeout(function () {
   http.get(source_url, function(res) {
     console.log("Webcam source connection established")
     res.on('data', function(chunk) {
+      if (initial_chunks.length < initial_chunk_memory_count) {
+        initial_chunks.push(chunk)
+      }
       console.log(`Webcam data chunk received of size ${chunk.length}`)
       const is_end = false
       for (const [id, listener] of Object.entries(source_listeners)) {
@@ -138,7 +152,7 @@ app.get('/webcam.ogg', (req, res) => {
 
   // Attach forwarding function to source stream listeners
   console.log(`Listener ${id} attached as webcam stream listener`)
-  source_listeners[id] = forwarder
+  register_source_listener(id, forwarder)
 })
 
 // Enabled re-stream listener
