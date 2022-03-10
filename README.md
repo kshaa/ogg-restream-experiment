@@ -14,7 +14,8 @@ Figure out how hard it is to capture an OGG video stream and pipe it around over
 - When end-users connect to the server, the OGG page broadcasts are listened for and forwarded over the connection
 - _Note: Because this prototype uses HTTP 1.1, we must inform the client about not accepting stream "scrubbing" using `Accept-Ranges: none` [2]_  
 - _Note: Because this prototype uses HTTP 1.1, we must respond w/ `Content-Type: application/ogg` on the initial request and w/ the actual stream content on the second request which contains `Range: bytes=0-` [3]_  
-- _Note: Because the stream is initialized before any client actually connects, we store a few of the initial OGG pages for the client, otherwise some clients don't render the stream, because it doesn't start with a `page_sequence_number` with the value `0` [4]_  
+- ~~_Note: Because the stream is initialized before any client actually connects, we store a few of the initial OGG pages for the client, otherwise some clients don't render the stream, because it doesn't start with a `page_sequence_number` with the value `0` [4]_~~
+- **Note: This specific approach to hosting a single stream and then sending latest bytes to new clients does not really work, the OGG pages should probably be parsed and re-structured for this to work properly**  
 - The resulting performance is very poor, no idea why, definitely a lot of room for improvement.  
   
 [1]: [kshaa: How to stream webcam as OGG over HTTP using VLC](https://gist.github.com/kshaa/3c0b8de502ad84b26e3eb8452d90b755)  
